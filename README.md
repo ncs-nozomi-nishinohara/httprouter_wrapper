@@ -1,4 +1,4 @@
-# httproute wrapper [![Build Status](https://travis-ci.com/ncs-nozomi-nishinohara/httproute_wrapper.svg?branch=master)](https://travis-ci.com/ncs-nozomi-nishinohara/httproute_wrapper)
+# httproute wrapper [![Build Status](https://travis-ci.com/ncs-nozomi-nishinohara/httproute_wrapper.svg?branch=master)](https://travis-ci.com/ncs-nozomi-nishinohara/httproute_wrapper) [![godoc](https://godoc.org/github.com/ncs-nozomi-nishinohara/httprouter_wrapper?status.svg)](https://godoc.org/github.com/ncs-nozomi-nishinohara/httprouter_wrapper)
 
 [httprouter](github.com/julienschmidt/httprouter)をラップして、  
 構造体にメソッドを追加し、yaml ファイルに設定していくだけで  

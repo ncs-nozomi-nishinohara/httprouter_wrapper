@@ -20,6 +20,7 @@ var (
 	HandlerSetting *RouterWrapperHandler
 )
 
+// wrapperハンドラーエラーメソッド
 func (w *RouterWrapperHandler) Error() string {
 	if w.error_ != nil {
 		return w.error_.Error()
@@ -27,6 +28,7 @@ func (w *RouterWrapperHandler) Error() string {
 	return fmt.Sprintf("%s error key %s", w.Filename, w.key)
 }
 
+// wrapperhandleコンストラクタ
 func NewRouterWrapperHandler(filename string, readme ReadMe) *RouterWrapperHandler {
 	if readme.Filename == "" {
 		readme.Filename = "README.md"
@@ -37,6 +39,7 @@ func NewRouterWrapperHandler(filename string, readme ReadMe) *RouterWrapperHandl
 	}
 }
 
+// レシーバーメソッドコンストラクタ
 func construct(r interface{}, methodname string) func(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	return func(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 		var param0 = reflect.ValueOf(rw)
@@ -47,6 +50,7 @@ func construct(r interface{}, methodname string) func(rw http.ResponseWriter, re
 	}
 }
 
+// コンストラクタ
 func New(w *RouterWrapperHandler) {
 	HandlerSetting = w
 	var servicename string
@@ -115,6 +119,7 @@ func New(w *RouterWrapperHandler) {
 	}
 }
 
+// readme生成関数
 func CreateReadme(filename string, servicename string, m map[interface{}]interface{}) {
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
 	if err != nil {

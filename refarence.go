@@ -10,6 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// githubタイプのreadmeTohtml
 func renderWithGitHub(md []byte) ([]byte, error) {
 	client := github.NewClient(nil)
 	opt := &github.MarkdownOptions{Mode: "gfm", Context: "google/go-github"}
