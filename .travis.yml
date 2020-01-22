@@ -1,0 +1,16 @@
+sudo: false
+
+language: "go"
+go:
+  - 1.13.x
+  - master
+
+install:
+  - go get
+
+branches:
+  only:
+    - master
+
+script:
+  - go test -v ./...
