@@ -1,0 +1,43 @@
+TestService:
+  describe: テスト用
+  port: 8080 # or "8080"
+  paths:
+    /test:
+      methods:
+        get:
+          func: Get
+          attribute:
+            describe: HttpMethod:Getテスト
+            parameter: |+
+              | query name | type | required |
+              | :-- | :-- | :-- |
+              | id | int | true |
+              | name | string | false |
+        post:
+          func: Post
+          attribute:
+            describe: HttpMethod:Postテスト
+            parameter: '
+            {
+              "id": "int",
+              "name": "int",
+              "objs": []
+            }'
+    /all_method:
+      methods:
+        get:
+          func: AllMethod
+          attribute:
+            describe: メソッド内で分岐(Get)
+        post:
+          func: AllMethod
+          attribute:
+            describe: メソッド内で分岐(Post)
+        put:
+          func: AllMethod
+          attribute:
+            describe: メソッド内で分岐(Put)
+        delete:
+          func: AllMethod
+          attribute:
+            describe: メソッド内で分岐(Delete)
