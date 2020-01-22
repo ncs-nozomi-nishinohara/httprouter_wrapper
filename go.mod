@@ -1,4 +1,4 @@
-module httprouter_wrapper
+module github.com/ncs-nozomi-nishinohara/httproute_wrapper
 
 go 1.13
 
