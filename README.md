@@ -1,4 +1,4 @@
-# httproute wrapper
+# httproute wrapper [![Build Status](https://travis-ci.com/ncs-nozomi-nishinohara/httproute_wrapper.svg?branch=master)](https://travis-ci.com/ncs-nozomi-nishinohara/httproute_wrapper)
 
 [httprouter](github.com/julienschmidt/httprouter)をラップして、  
 構造体にメソッドを追加し、yaml ファイルに設定していくだけで  
