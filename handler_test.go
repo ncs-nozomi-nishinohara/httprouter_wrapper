@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper"
 	utils "github.com/ncs-nozomi-nishinohara/httprouter_wrapper/wrapper_utils"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/julienschmidt/httprouter"
+	_ "github.com/lib/pq"
 )
 
 type Router struct {
@@ -71,6 +74,14 @@ func TestNew(t *testing.T) {
 	})
 	router.Router = wr
 	httprouter_wrapper.New(router)
+	// migration
+	var count int
+	utils.DB.Table("usermaster").Count(&count)
+	if count != 1 {
+		log.Fatalf("Migration Error: %s", strconv.Itoa(count))
+	} else {
+		log.Println("Migration OK")
+	}
 	var requests []*http.Request
 
 	requests = append(requests, Request(http.NewRequest(http.MethodGet, "/test", nil)))

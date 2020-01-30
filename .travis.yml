@@ -3,14 +3,19 @@ sudo: false
 language: "go"
 go:
   - 1.13.x
-  - master
+  # - master
 
 install:
   - go get
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database postgres;' -U postgres
 
 script:
   - go test -v ./...

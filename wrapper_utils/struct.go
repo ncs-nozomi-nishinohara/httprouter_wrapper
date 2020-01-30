@@ -25,6 +25,7 @@ type RouterWrapperHandler struct {
 	error_      error
 	ListenServe func() error
 	Router      interface{}
+	Migration   bool
 }
 
 // wrapperハンドラーエラーメソッド

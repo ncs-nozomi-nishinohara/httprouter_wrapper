@@ -15,8 +15,13 @@ import (
 )
 
 var (
-	HandlerSetting *wrapper_utils.RouterWrapperHandler
+	HandlerSetting     *wrapper_utils.RouterWrapperHandler
+	methodName_to_func map[string]reflect.Value
 )
+
+func init() {
+	methodName_to_func = make(map[string]reflect.Value)
+}
 
 // wrapperhandleコンストラクタ
 func NewRouterWrapperHandler(filename string, readme wrapper_utils.ReadMe) *wrapper_utils.RouterWrapperHandler {
@@ -32,10 +37,15 @@ func NewRouterWrapperHandler(filename string, readme wrapper_utils.ReadMe) *wrap
 // レシーバーメソッドコンストラクタ
 func construct(r interface{}, methodname string) func(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	return func(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		var value reflect.Value
 		var param0 = reflect.ValueOf(rw)
 		var param1 = reflect.ValueOf(req)
 		var param2 = reflect.ValueOf(ps)
-		var value = reflect.ValueOf(r).MethodByName(methodname)
+		value, ok := methodName_to_func[methodname]
+		if !ok {
+			value = reflect.ValueOf(r).MethodByName(methodname)
+			methodName_to_func[methodname] = value
+		}
 		value.Call([]reflect.Value{param0, param1, param2})
 	}
 }
@@ -62,15 +72,23 @@ func New(w *wrapper_utils.RouterWrapperHandler) {
 	}
 	environment, ok := service["environment"]
 	if ok {
-		for key, value := range environment.(map[string]string) {
-			os.Setenv(key, value)
+		for key, value := range environment.(map[interface{}]interface{}) {
+			if os.Getenv(key.(string)) == "" {
+				os.Setenv(key.(string), value.(string))
+			}
 		}
 	}
+	migrationflg := false
+	migrationenv := os.Getenv("MIGRATION")
+	if migrationenv != "" && strings.ToUpper(migrationenv) == "Y" {
+		migrationflg = true
+	}
+	w.Migration = migrationflg
 	migration, ok := service["migration"]
 	if ok {
 		var driver, dirname string
-		driver = migration.(map[string]string)["driver"]
-		dirname = migration.(map[string]string)["dirname"]
+		driver = migration.(map[interface{}]interface{})["driver"].(string)
+		dirname = migration.(map[interface{}]interface{})["dirname"].(string)
 		wrapper_utils.Migration(driver, dirname)
 	}
 	if w.Readme.Refarence {

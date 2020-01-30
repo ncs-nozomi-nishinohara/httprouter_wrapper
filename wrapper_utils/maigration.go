@@ -2,7 +2,6 @@ package wrapper_utils
 
 import (
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strings"
 	"time"
@@ -53,6 +52,6 @@ func Migration(driver string, dirname string) {
 		return nil
 	})
 	if err != nil {
-		log.Panicln(err)
+		panic(err)
 	}
 }

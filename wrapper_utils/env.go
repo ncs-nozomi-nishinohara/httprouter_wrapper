@@ -3,15 +3,15 @@ package wrapper_utils
 import "os"
 
 func Getenv(key string, fallback string) string {
-	value, ok := os.LookupEnv(key)
-	if ok {
+	value := os.Getenv(key)
+	if value != "" {
 		return value
 	}
 	return fallback
 }
 
-func Migration_env(envname string, fallback string) string {
-	var MIGRATION = "MIGRATION_"
-	var env = MIGRATION + envname
+func Sqlenv(envname string, fallback string) string {
+	var sql = "SQL_"
+	var env = sql + envname
 	return Getenv(env, fallback)
 }

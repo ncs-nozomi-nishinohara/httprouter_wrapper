@@ -6,6 +6,22 @@
 
 <details><summary>/test</summary>
 
+<details><summary>GET</summary>
+
+- descirbe
+
+HttpMethod:Getテスト
+
+- Parameter
+
+| query name | type | required |
+| :-- | :-- | :-- |
+| id | int | true |
+| name | string | false |
+
+
+</details>
+
 <details><summary>POST</summary>
 
 - descirbe
@@ -21,22 +37,6 @@ HttpMethod:Postテスト
   "objs": []
 }
 ```
-
-</details>
-
-<details><summary>GET</summary>
-
-- descirbe
-
-HttpMethod:Getテスト
-
-- Parameter
-
-| query name | type | required |
-| :-- | :-- | :-- |
-| id | int | true |
-| name | string | false |
-
 
 </details>
 
