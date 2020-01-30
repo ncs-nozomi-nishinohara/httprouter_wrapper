@@ -14,8 +14,5 @@ install:
 services:
   - postgresql
 
-before_script:
-  - psql -c 'create database postgres;' -U postgres
-
 script:
   - go test -v ./...
