@@ -1,9 +1,6 @@
 package httprouter_wrapper
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,27 +10,20 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper/wrapper_utils"
 	"gopkg.in/yaml.v2"
 )
 
 var (
-	HandlerSetting *RouterWrapperHandler
+	HandlerSetting *wrapper_utils.RouterWrapperHandler
 )
 
-// wrapperハンドラーエラーメソッド
-func (w *RouterWrapperHandler) Error() string {
-	if w.error_ != nil {
-		return w.error_.Error()
-	}
-	return fmt.Sprintf("%s error key %s", w.Filename, w.key)
-}
-
 // wrapperhandleコンストラクタ
-func NewRouterWrapperHandler(filename string, readme ReadMe) *RouterWrapperHandler {
+func NewRouterWrapperHandler(filename string, readme wrapper_utils.ReadMe) *wrapper_utils.RouterWrapperHandler {
 	if readme.Filename == "" {
 		readme.Filename = "README.md"
 	}
-	return &RouterWrapperHandler{
+	return &wrapper_utils.RouterWrapperHandler{
 		Readme:   readme,
 		Filename: filename,
 	}
@@ -51,19 +41,16 @@ func construct(r interface{}, methodname string) func(rw http.ResponseWriter, re
 }
 
 // コンストラクタ
-func New(w *RouterWrapperHandler) {
+func New(w *wrapper_utils.RouterWrapperHandler) {
 	HandlerSetting = w
 	var servicename string
 	var router = httprouter.New()
-	if w.Readme.Refarence {
-		router.GET("/refarence", refarence)
-	}
 	var routerf = reflect.ValueOf(router)
 	var buf, _ = ioutil.ReadFile(w.Filename)
 	var cfg = make(map[string]interface{})
 	var err = yaml.Unmarshal(buf, &cfg)
 	if err != nil {
-		w.error_ = err
+		w.SetError(err)
 		return
 	}
 
@@ -73,10 +60,30 @@ func New(w *RouterWrapperHandler) {
 		service = v.(map[interface{}]interface{})
 		break
 	}
+	environment, ok := service["environment"]
+	if ok {
+		for key, value := range environment.(map[string]string) {
+			os.Setenv(key, value)
+		}
+	}
+	migration, ok := service["migration"]
+	if ok {
+		var driver, dirname string
+		driver = migration.(map[string]string)["driver"]
+		dirname = migration.(map[string]string)["dirname"]
+		wrapper_utils.Migration(driver, dirname)
+	}
+	if w.Readme.Refarence {
+		router.GET("/refarence", refarence)
+	}
+	if w.Readme.Write {
+		wrapper_utils.CreateReadme(w.Readme.Filename, servicename, service)
+	}
+
 	port_, ok := service["port"]
 	if !ok {
-		w.error_ = nil
-		w.key = "port"
+		w.SetError(nil)
+		w.SetKey("port")
 		return
 	}
 	var port string
@@ -88,10 +95,12 @@ func New(w *RouterWrapperHandler) {
 	case reflect.Float64:
 		port = strconv.Itoa(int(port_.(float64)))
 	}
+	w.SetPort(port)
+
 	paths, ok := service["paths"]
 	if !ok {
-		w.error_ = nil
-		w.key = "paths"
+		w.SetError(nil)
+		w.SetKey("paths")
 		return
 	}
 	for k, v := range paths.(map[interface{}]interface{}) {
@@ -107,91 +116,11 @@ func New(w *RouterWrapperHandler) {
 			routerf.MethodByName(httpmethod).Call([]reflect.Value{param0, param1})
 		}
 	}
-	w.port = ":" + port
-	w.Handler = Log(router)
-	if w.Readme.Write {
-		CreateReadme(w.Readme.Filename, servicename, service)
-	}
+
+	w.Handler = wrapper_utils.Log(router)
 	log.Printf("%s Service Start", servicename)
 
 	w.ListenServe = func() error {
-		return http.ListenAndServe(w.port, w.Handler)
+		return http.ListenAndServe(w.GetPort(), w.Handler)
 	}
-}
-
-// readme生成関数
-func CreateReadme(filename string, servicename string, m map[interface{}]interface{}) {
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0660)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	// タイトル
-	base := `# %s
-
-`
-	base = fmt.Sprintf(base, servicename)
-	// 全体
-	base += `## Describe
-
-%s
-
-`
-
-	base = fmt.Sprintf(base, m["describe"].(string))
-	paths := m["paths"]
-	type Attribute struct {
-		Method    string
-		Describe  string
-		Parametes string
-		Json      bool
-	}
-	for k, v := range paths.(map[interface{}]interface{}) {
-		var url = k
-		var methods = v.(map[interface{}]interface{})["methods"].(map[interface{}]interface{})
-		sets := []Attribute{}
-		for httpmethod_, methodvalue := range methods {
-			httpmethod := strings.ToUpper(httpmethod_.(string))
-			httpmethod = strings.TrimSpace(httpmethod)
-			attribute := methodvalue.(map[interface{}]interface{})
-			method := attribute["attribute"].(map[interface{}]interface{})
-			set := Attribute{}
-			set.Method = httpmethod
-			describe, ok := method["describe"]
-			if ok {
-				set.Describe = describe.(string)
-			}
-			parameter, ok := method["parameter"]
-			if ok {
-				var buf bytes.Buffer
-				err := json.Indent(&buf, []byte(parameter.(string)), "", "  ")
-				if err == nil {
-					set.Json = true
-					set.Parametes = buf.String()
-				} else {
-					set.Parametes = parameter.(string)
-				}
-			}
-			sets = append(sets, set)
-		}
-		base += fmt.Sprintf("<details><summary>%s</summary>\n\n", url)
-		for _, set := range sets {
-			base += fmt.Sprintf("<details><summary>%s</summary>\n\n", set.Method)
-			base += "- descirbe\n\n"
-			base += set.Describe + "\n\n"
-			if set.Parametes != "" {
-				base += "- Parameter\n\n"
-				if set.Json {
-					base += "```json:paramete.json\n%s\n```\n\n"
-					base = fmt.Sprintf(base, set.Parametes)
-				} else {
-					base += set.Parametes + "\n\n"
-				}
-			}
-			base += "</details>\n\n"
-		}
-		base += "</details>"
-
-	}
-	fmt.Fprint(file, base)
 }

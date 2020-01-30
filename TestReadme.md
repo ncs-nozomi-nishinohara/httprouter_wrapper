@@ -10,7 +10,7 @@
 
 - descirbe
 
-HttpMethod:Post テスト
+HttpMethod:Postテスト
 
 - Parameter
 
@@ -28,14 +28,15 @@ HttpMethod:Post テスト
 
 - descirbe
 
-HttpMethod:Get テスト
+HttpMethod:Getテスト
 
 - Parameter
 
-| query name | type   | required |
-| :--------- | :----- | :------- |
-| id         | int    | true     |
-| name       | string | false    |
+| query name | type | required |
+| :-- | :-- | :-- |
+| id | int | true |
+| name | string | false |
+
 
 </details>
 

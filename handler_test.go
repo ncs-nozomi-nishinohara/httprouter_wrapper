@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper"
+	utils "github.com/ncs-nozomi-nishinohara/httprouter_wrapper/wrapper_utils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -64,8 +65,8 @@ func TestNew(t *testing.T) {
 	wr := Router{}
 	json.Unmarshal([]byte(test_json), &test_interface)
 	result, _ := json.Marshal(test_interface)
-	router := httprouter_wrapper.NewRouterWrapperHandler("test_service.yaml", httprouter_wrapper.ReadMe{
-		Write:    false,
+	router := httprouter_wrapper.NewRouterWrapperHandler("test_service.yaml", utils.ReadMe{
+		Write:    true,
 		Filename: "TestReadme.md",
 	})
 	router.Router = wr
