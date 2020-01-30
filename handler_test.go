@@ -3,8 +3,8 @@ package httprouter_wrapper_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper"
-	utils "github.com/ncs-nozomi-nishinohara/httprouter_wrapper/wrapper_utils"
+	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper/v2"
+	utils "github.com/ncs-nozomi-nishinohara/httprouter_wrapper/v2/wrapper_utils"
 	"log"
 	"net/http"
 	"net/http/httptest"

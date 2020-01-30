@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper/wrapper_utils"
+	"github.com/ncs-nozomi-nishinohara/httprouter_wrapper/v2/wrapper_utils"
 	"gopkg.in/yaml.v2"
 )
 
