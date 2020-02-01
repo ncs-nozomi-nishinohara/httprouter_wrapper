@@ -96,23 +96,56 @@ func New(w *wrapper_utils.RouterWrapperHandler) {
 	if w.Readme.Write {
 		wrapper_utils.CreateReadme(w.Readme.Filename, servicename, service)
 	}
+	serviceflg := false
+	if port, ok := service["port"]; ok {
+		switch port.(type) {
+		case string:
+			w.SetPort(port.(string))
+			serviceflg = true
+		case int:
+			w.SetPort(strconv.Itoa(port.(int)))
+			serviceflg = true
+		case int32:
+			w.SetPort(strconv.Itoa(int(port.(int32))))
+			serviceflg = true
+		case int64:
+			w.SetPort(strconv.Itoa(int(port.(int64))))
+			serviceflg = true
+		case float32:
+			w.SetPort(strconv.Itoa(int(port.(float32))))
+			serviceflg = true
+		case float64:
+			w.SetPort(strconv.Itoa(int(port.(float64))))
+			serviceflg = true
+		}
+	}
 
-	port_, ok := service["port"]
-	if !ok {
+	if address, ok := service["address"]; ok {
+		switch address.(type) {
+		case string:
+			w.SetAddress(address.(string))
+			serviceflg = true
+		case int:
+			w.SetAddress(strconv.Itoa(address.(int)))
+			serviceflg = true
+		case int32:
+			w.SetAddress(strconv.Itoa(int(address.(int32))))
+			serviceflg = true
+		case int64:
+			w.SetAddress(strconv.Itoa(int(address.(int64))))
+			serviceflg = true
+		case float32:
+			w.SetAddress(strconv.Itoa(int(address.(float32))))
+			serviceflg = true
+		case float64:
+			w.SetAddress(strconv.Itoa(int(address.(float64))))
+			serviceflg = true
+		}
+	}
+
+	if !serviceflg {
 		w.SetError(nil)
-		w.SetKey("port")
-		return
 	}
-	var port string
-	switch reflect.ValueOf(port_).Kind() {
-	case reflect.String:
-		port = port_.(string)
-	case reflect.Int:
-		port = strconv.Itoa(port_.(int))
-	case reflect.Float64:
-		port = strconv.Itoa(int(port_.(float64)))
-	}
-	w.SetPort(port)
 
 	paths, ok := service["paths"]
 	if !ok {
@@ -120,6 +153,7 @@ func New(w *wrapper_utils.RouterWrapperHandler) {
 		w.SetKey("paths")
 		return
 	}
+
 	for k, v := range paths.(map[interface{}]interface{}) {
 		var url = k
 		var maps = v.(map[interface{}]interface{})["methods"].(map[interface{}]interface{})
