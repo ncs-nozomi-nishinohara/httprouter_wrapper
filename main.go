@@ -41,8 +41,7 @@ func construct(r interface{}, methodname string) func(rw http.ResponseWriter, re
 		var param0 = reflect.ValueOf(rw)
 		var param1 = reflect.ValueOf(req)
 		var param2 = reflect.ValueOf(ps)
-		value, ok := methodName_to_func[methodname]
-		if !ok {
+		if value, ok := methodName_to_func[methodname]; !ok {
 			value = reflect.ValueOf(r).MethodByName(methodname)
 			methodName_to_func[methodname] = value
 		}
@@ -137,8 +136,4 @@ func New(w *wrapper_utils.RouterWrapperHandler) {
 
 	w.Handler = wrapper_utils.Log(router)
 	log.Printf("%s Service Start", servicename)
-
-	w.ListenServe = func() error {
-		return http.ListenAndServe(w.GetPort(), w.Handler)
-	}
 }

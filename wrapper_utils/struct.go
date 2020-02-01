@@ -2,7 +2,9 @@ package wrapper_utils
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"net/http/fcgi"
 )
 
 // レシーバー構造体
@@ -17,15 +19,32 @@ type ReadMe struct {
 
 // wrapperhandler構造体
 type RouterWrapperHandler struct {
-	Filename    string
-	Readme      ReadMe
-	key         string
-	Handler     http.Handler
-	port        string
-	error_      error
-	ListenServe func() error
-	Router      interface{}
-	Migration   bool
+	Filename  string
+	Readme    ReadMe
+	Handler   http.Handler
+	Router    interface{}
+	Migration bool
+	address   string
+	port      string
+	error_    error
+	key       string
+}
+
+func (w *RouterWrapperHandler) ListenServe() error {
+	return http.ListenAndServe(w.GetPort(), w.Handler)
+}
+
+func (w *RouterWrapperHandler) ListenFastCGI() error {
+	l, _ := net.Listen("tcp", w.GetPort())
+	return fcgi.Serve(l, w.Handler)
+}
+
+func (w *RouterWrapperHandler) GetAdress() string {
+	return w.address
+}
+
+func (w *RouterWrapperHandler) SetAddress(address string) {
+	w.address = address
 }
 
 // wrapperハンドラーエラーメソッド
