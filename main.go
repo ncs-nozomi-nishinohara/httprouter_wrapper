@@ -37,15 +37,14 @@ func NewRouterWrapperHandler(filename string, readme wrapper_utils.ReadMe) *wrap
 // レシーバーメソッドコンストラクタ
 func construct(r interface{}, methodname string) func(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	return func(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		var value reflect.Value
 		var param0 = reflect.ValueOf(rw)
 		var param1 = reflect.ValueOf(req)
 		var param2 = reflect.ValueOf(ps)
-		if value, ok := methodName_to_func[methodname]; !ok {
-			value = reflect.ValueOf(r).MethodByName(methodname)
+		if _, ok := methodName_to_func[methodname]; !ok {
+			value := reflect.ValueOf(r).MethodByName(methodname)
 			methodName_to_func[methodname] = value
 		}
-		value.Call([]reflect.Value{param0, param1, param2})
+		methodName_to_func[methodname].Call([]reflect.Value{param0, param1, param2})
 	}
 }
 
